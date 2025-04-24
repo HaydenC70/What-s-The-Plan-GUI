@@ -1,0 +1,29 @@
+#Hayden Cass Final Projcet To-Do list/task manager 4/20/2025
+from breezypythongui import EasyFrame
+import tkinter.messagebox as msgbox
+
+#list to store tasks from user for later (not ready yet)
+taskList = []
+
+#main home window
+class MainWindow(EasyFrame):
+    def __init__(self):
+        EasyFrame.__init__(self, title="Task Manager/To-do list - Home", width=300, height=200)
+
+        self.addLabel("What’s the plan?", row=0, column=0, columnspan=2, font=("Helvetica", 16))
+        self.addLabel("Click below to manage your tasks.", row=1, column=0, columnspan=2)
+
+        self.addButton("Open Task Manager", row=2, column=0, columnspan=2, command=self.openTasks)
+        self.addButton("Exit", row=3, column=0, columnspan=2, command=self.exitApp)
+
+    def openTasks(self):
+        self.destroy()
+        TaskWindow().mainloop()
+
+    def exitApp(self):
+        if msgbox.askyesno("Exit", "Would you want to exit?"):
+            self.destroy()
+
+#starts the app
+if __name__ == "__main__":
+    MainWindow().mainloop()
