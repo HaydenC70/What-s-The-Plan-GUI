@@ -1,0 +1,111 @@
+#Hayden Cass FINAL PROJECT, 4,18,2025
+from breezypythongui import EasyFrame
+import tkinter.messagebox as msgbox
+import tkinter as tk
+from tkinter import PhotoImage
+import sys
+
+#Stores the tasks for the time of the app being open
+taskList = []
+
+#main home window, supposed to have a logo image and checklist png but is not working
+#has the main label of app of the title while having a description below.
+#two buttons will appear opening the task manager and having an exit button.
+class MainWindow(EasyFrame):
+    def __init__(self):
+        EasyFrame.__init__(self, title="Task Manager - Home", width=600, height=400)
+
+        #should to load image with backup error 
+        try:
+            self.image1 = PhotoImage(file="image1.png")
+            self.image2 = PhotoImage(file="image2.png")
+        except tk.TclError:
+            msgbox.showerror("Error", "Image files not found!")
+            self.image1 = None
+            self.image2 = None
+
+        #puts the image in the top left and top right but will print not found if can't load
+        if self.image1:
+            self.addLabel(image=self.image1, row=0, column=0, sticky="N")
+        else:
+            self.addLabel(text="Image 1 (Not Found)", row=0, column=0)
+
+        if self.image2:
+            self.addLabel(image=self.image2, row=0, column=1, sticky="N")
+        else:
+            self.addLabel(text="Image 2 (Not Found)", row=0, column=1)
+
+        self.addLabel(text="What's the plan?", row=1, column=0, columnspan=2, font=("Helvetica", 16))
+        self.addLabel(text="Click below to manage your tasks.", row=2, column=0, columnspan=2)
+
+        self.addButton(text="Open Task Manager", row=3, column=0, columnspan=2, command=self.openTasks)
+        self.addButton(text="Exit", row=4, column=0, columnspan=2, command=self.exitApp)
+#should kill the code when pressing exit
+    def openTasks(self):
+        self.destroy()
+        TaskWindow().mainloop()
+
+    def exitApp(self):
+        if msgbox.askyesno("Exit", "Do you want to exit?"):
+            self.destroy()
+            sys.exit()
+
+
+#task management window with two text entries that will print on the main page in the middle
+#4 buttons will appear of add, delete, back to main page, and exit to kill the app
+class TaskWindow(EasyFrame):
+    def __init__(self):
+        EasyFrame.__init__(self, title="Your Tasks", width=400, height=350)
+
+        self.addLabel(text="New Task:", row=0, column=0)
+        self.taskField = self.addTextField(text="", row=0, column=1)
+
+        self.taskBox = self.addTextArea(text="", row=1, column=0, columnspan=2, height=10, width=40)
+        self.taskBox["state"] = "disabled"
+
+        self.addLabel(text="Delete Task #:", row=2, column=0)
+        self.deleteField = self.addIntegerField(value=0, row=2, column=1)
+
+        self.addButton(text="Add Task", row=3, column=0, command=self.addTask)
+        self.addButton(text="Delete Task", row=3, column=1, command=self.deleteTask)
+        self.addButton(text="Back", row=4, column=0, command=self.goBack)
+        self.addButton(text="Exit", row=4, column=1, command=self.exitApp)
+
+        self.showTasks()
+#will show message box if you do not type the title of task in while trying to add it
+    def addTask(self):
+        task = self.taskField.getText().strip()
+        if not task:
+            msgbox.showwarning("Empty", "Please type something first!")
+        else:
+            taskList.append(task)
+            self.taskField.setText("")
+            self.showTasks()
+#will delete the number of task entered and if not a right number it will show message box of no task with that number
+    def deleteTask(self):
+        number = self.deleteField.getNumber()
+        if 1 <= number <= len(taskList):
+            taskList.pop(number - 1)
+            self.showTasks()
+        else:
+            msgbox.showwarning("Invalid", "No task with that number!")
+#is the table show when the task is stored. WILL NOT SAVE WHEN CLOSING THE APP
+    def showTasks(self):
+        self.taskBox["state"] = "normal"
+        self.taskBox.setText("")
+        for i, task in enumerate(taskList, start=1):
+            self.taskBox.appendText(f"{i}. {task}\n")
+        self.taskBox["state"] = "disabled"
+#should go back to main window BUT WILL SAVE TASKS ADDED BUT WON'T IF APP IS COMPLETELY SHUT DOWN
+    def goBack(self):
+        self.destroy()
+        MainWindow().mainloop()
+#should kill the whole app and shut it down WILL NOT SAVE
+    def exitApp(self):
+        if msgbox.askyesno("Exit", "Do you want to exit?"):
+            self.destroy()
+            sys.exit()
+
+#start the app when ran
+if __name__ == "__main__":
+    MainWindow().mainloop()
